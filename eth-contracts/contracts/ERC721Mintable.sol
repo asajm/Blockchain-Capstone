@@ -13,10 +13,13 @@ contract Ownable {
     //  3) create an 'onlyOwner' modifier that throws if called by any account other than the owner.
     //  4) fill out the transferOwnership function
     //  5) create an event that emits anytime ownerShip is transfered (including in the constructor)
-    address public _owner;
+    address private _owner;
 
-    constructor (address owner) internal {
-        _owner = owner;
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    constructor () internal {
+        _owner = msg.sender;
+        emit OwnershipTransferred(address(0), _owner);
     }
 
     modifier onlyOwner() {
@@ -29,13 +32,16 @@ contract Ownable {
         _;
     }
 
-    event ownerShip(address newOwner);
+    function owner() public view returns(address){
+        return _owner;
+    }
 
     function transferOwnership(address newOwner) public onlyOwner realAddress(newOwner){
         // TODO add functionality to transfer control of the contract to a newOwner.
         // make sure the new owner is a real address
+        emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
-        emit ownerShip(_owner);
+
     }
 }
 
@@ -49,9 +55,12 @@ contract Ownable {
 contract Pausable is Ownable {
     bool private _paused;
 
+    event Paused(address doer );
+    event Unpaused(address doer );
+
     constructor () internal {
         // _paused = false;
-        setPaused(false);
+        _paused = false;
     }
 
     modifier whenNotPaused() {
@@ -59,13 +68,10 @@ contract Pausable is Ownable {
         _;
     }
 
-    modifier paused() {
+    modifier whenPaused() {
         require(_paused == true, 'the operational is not paused');
         _;
     }
-
-    event Paused(address doer );
-    event Unpaused(address doer );
 
     function setPaused(bool paused) public onlyOwner {
         _paused = paused;
@@ -150,7 +156,7 @@ contract ERC721 is Pausable, ERC165 {
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(_INTERFACE_ID_ERC721);
     }
-
+//
     function balanceOf(address owner) public view returns (uint256) {
         // TODO return the token balance of given address
         // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
@@ -305,7 +311,7 @@ contract ERC721 is Pausable, ERC165 {
         }
     }
 }
-
+//
 contract ERC721Enumerable is ERC165, ERC721 {
     // Mapping from owner to list of owned token IDs
     mapping(address => uint256[]) private _ownedTokens;
@@ -507,16 +513,15 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     }
 
     // TODO: create external getter functions for name, symbol, and baseTokenURI
-
-    function name() external view returns (string memory) {
+    function getName() external view returns (string memory) {
         return _name;
     }
 
-    function symbol() external view returns (string memory) {
+    function getSymbol() external view returns (string memory) {
         return _symbol;
     }
 
-    function baseTokenURI() external view returns (string memory) {
+    function getBaseTokenURI() external view returns (string memory) {
         return _baseTokenURI;
     }
 
@@ -535,8 +540,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 
         function _setTokenURI(uint256 tokenId, string memory uri) internal {
         require(_exists(tokenId), 'The given tokenId is not existed');
-        string tokenIdStr = uint2str(tokenId);
-        _tokenURIs[tokenId] = strConcat(uri, tokenIdStr);
+        _tokenURIs[tokenId] = strConcat(uri, uint2str(tokenId));
     }
 
 }
@@ -555,7 +559,7 @@ contract AhmedToken is ERC721Metadata {
     string private _symbol = 'ATK';
     string private _baseTokenURI = 'https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/';
 
-    constructor () ERC20Token(_name, _symbol, _baseTokenURI) public {}
+    constructor () ERC721Metadata(_name, _symbol, _baseTokenURI) public {}
 
     function mint(address to, uint256 tokenId) public onlyOwner returns(bool) {
         super._mint(to, tokenId);
