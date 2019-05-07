@@ -11,11 +11,11 @@ module.exports = async function (deployer) {
   await deployer.deploy(Verifier)
   await deployer.deploy(SolnSquareVerifier, Verifier.address)
 
-  console.log('# Verifier address: %s', Verifier.address)
-  console.log('# Verifier transaction: %s', Verifier.transactionHash)
-  // console.log(Verifier.abi)
+  // console.log('# Verifier address: %s', Verifier.address)
+  // console.log('# Verifier transaction: %s', Verifier.transactionHash)
+  // // console.log(Verifier.abi)
 
-  console.log('# SolnSquareVerifier address: %s', SolnSquareVerifier.address)
-  console.log('# SolnSquareVerifier transaction: %s', SolnSquareVerifier.transactionHash)
-  // console.log(SolnSquareVerifier.abi)
+  // console.log('# SolnSquareVerifier address: %s', SolnSquareVerifier.address)
+  // console.log('# SolnSquareVerifier transaction: %s', SolnSquareVerifier.transactionHash)
+  // // console.log(SolnSquareVerifier.abi)
 };
